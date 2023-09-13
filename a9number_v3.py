@@ -22,11 +22,12 @@ def count_occurrences_in_text(word, text):
     word = word.lower().strip('"').strip("'")  # Remove surrounding quotes
     text = text.lower()
 
-    # Adjusted regex to capture words, including those surrounded by quotes
-    words = re.findall(r"\b\w+\b|\'\w+\'|\"\w+\"", text)
-    word_counts = Counter(words)
+    # Use regex to find whole word occurrences
+    # We'll split on non-word characters, but we'll make an exception for apostrophes surrounded by letters (like "O'maley")
+    pattern = r"\b" + re.escape(word) + r"\b"
+    matches = re.findall(pattern, text)
 
-    return word_counts[word]
+    return len(matches)
 
     # This does not pass the unittests:
     # return text.count(word)
