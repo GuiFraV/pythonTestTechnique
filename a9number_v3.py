@@ -18,12 +18,14 @@ def count_occurrences_in_text(word, text):
 
     # TODO: your code goes here, but it's OK to add new functions or import modules if needed
 
-    word = word.lower().strip("'\"")  # Remove single and double quotes from the word
+    # Convert both word and text to lowercase for case-insensitive search
+    word = word.lower().strip('"').strip("'")  # Remove surrounding quotes
     text = text.lower()
-    words = re.findall(
-        r'\b[\w\'"]+\b', text
-    )  # Adjusted regex to include single and double quotes
+
+    # Adjusted regex to capture words, including those surrounded by quotes
+    words = re.findall(r"\b\w+\b|\'\w+\'|\"\w+\"", text)
     word_counts = Counter(words)
+
     return word_counts[word]
 
     # This does not pass the unittests:
