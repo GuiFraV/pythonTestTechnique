@@ -1,4 +1,6 @@
 import cProfile
+import re
+from collections import defaultdict
 
 
 """In order to run the tests simply run
@@ -8,15 +10,24 @@ python -m pytest a9number_v3.py
 In order to see the profiling, you need to add the option -s
 """
 
+
 def count_occurrences_in_text(word, text):
     """
     Return the number of occurrences of the passed word (case insensitive) in text
     """
 
     # TODO: your code goes here, but it's OK to add new functions or import modules if needed
+    text = re.sub(r"\"", "", text)
 
-    # This does not pass the unittests:
-    return text.count(word)
+    # Convertir le mot et le texte en minuscules
+    # word = word.lower()
+    # text = text.lower()
+
+    # Utiliser regex pour diviser le texte en mots
+    words = re.findall(r"\b\w+\b|\w+'\w+|'\w+(\s\w+)*'", text, re.IGNORECASE)
+
+    # Retourner le nombre d'occurrences du mot spécifié
+    return words.count(word)
 
 
 def test_count_occurrences_in_text():
@@ -37,22 +48,37 @@ and my name is GEORGES"""
     assert 0 == count_occurrences_in_text("maley", "John O'maley is my friend")
 
     # Test it but with a BIG length file.
-    text = """The quick brown fox jump over the lazy dog.The quick brown fox jump over the lazy dog.""" * 500
+    text = (
+        """The quick brown fox jump over the lazy dog.The quick brown fox jump over the lazy dog."""
+        * 500
+    )
     text += """The quick brown fox jump over the lazy dog.The quick brown Georges jump over the lazy dog."""
     text += """esrf sqfdg sfdglkj sdflgh sdflgjdsqrgl """ * 4000
     text += """The quick brown fox jump over the lazy dog.The quick brown fox jump over the lazy python."""
-    text += """The quick brown fox jump over the lazy dog.The quick brown fox jump over the lazy dog.""" * 500
+    text += (
+        """The quick brown fox jump over the lazy dog.The quick brown fox jump over the lazy dog."""
+        * 500
+    )
     text += """The quick brown fox jump over the lazy dog.The quick brown Georges jump over the lazy dog."""
     text += """esrf sqfdg sfdglkj sdflgh sdflgjdsqrgl """ * 4000
     text += """The quick brown fox jump over the lazy dog.The quick brown fox jump over the lazy python."""
-    text += """The quick brown fox jump over the lazy dog.The quick brown fox jump over the lazy dog.""" * 500
+    text += (
+        """The quick brown fox jump over the lazy dog.The quick brown fox jump over the lazy dog."""
+        * 500
+    )
     text += """The quick brown fox jump over the lazy dog.The quick brown Georges jump over the lazy dog."""
     text += """esrf sqfdg sfdglkj sdflgh sdflgjdsqrgl """ * 4000
     text += """The quick brown fox jump over the lazy dog.The quick brown fox jump over the lazy python."""
     text += """The quick brown fox jump over the true lazy dog.The quick brown fox jump over the lazy dog."""
-    text += """The quick brown fox jump over the lazy dog.The quick brown fox jump over the lazy dog.""" * 500
+    text += (
+        """The quick brown fox jump over the lazy dog.The quick brown fox jump over the lazy dog."""
+        * 500
+    )
     text += """ I vsfgsdfg sfdg sdfg sdgh sgh I sfdgsdf"""
-    text += """The quick brown fox jump over the lazy dog.The quick brown fox jump over the lazy dog.""" * 500
+    text += (
+        """The quick brown fox jump over the lazy dog.The quick brown fox jump over the lazy dog."""
+        * 500
+    )
 
     assert 3 == count_occurrences_in_text("Georges", text)
     assert 3 == count_occurrences_in_text("GEORGES", text)
@@ -64,66 +90,108 @@ and my name is GEORGES"""
     assert 0 == count_occurrences_in_text("n", text)
     assert 1 == count_occurrences_in_text("true", text)
     assert 1 == count_occurrences_in_text(
-        "'reflexion mirror'", "I am a senior citizen and I live in the Fun-Plex 'Reflexion Mirror' in Sopchoppy, Florida"
-    )
-    assert 1 == count_occurrences_in_text(
-        "reflexion mirror", "I am a senior citizen and I live in the Fun-Plex (Reflexion Mirror) in Sopchoppy, Florida"
-    )
-    assert 1 == count_occurrences_in_text("reflexion mirror", "Reflexion Mirror\" in Sopchoppy, Florida")
-    assert 1 == count_occurrences_in_text(
-        "reflexion mirror", "I am a senior citizen and I live in the Fun-Plex «Reflexion Mirror» in Sopchoppy, Florida"
+        "'reflexion mirror'",
+        "I am a senior citizen and I live in the Fun-Plex 'Reflexion Mirror' in Sopchoppy, Florida",
     )
     assert 1 == count_occurrences_in_text(
         "reflexion mirror",
-        "I am a senior citizen and I live in the Fun-Plex \u201cReflexion Mirror\u201d in Sopchoppy, Florida"
+        "I am a senior citizen and I live in the Fun-Plex (Reflexion Mirror) in Sopchoppy, Florida",
     )
     assert 1 == count_occurrences_in_text(
-        "legitimate", "who is approved by OILS is completely legitimate: their employees are of legal working age"
+        "reflexion mirror", 'Reflexion Mirror" in Sopchoppy, Florida'
+    )
+    assert 1 == count_occurrences_in_text(
+        "reflexion mirror",
+        "I am a senior citizen and I live in the Fun-Plex «Reflexion Mirror» in Sopchoppy, Florida",
+    )
+    assert 1 == count_occurrences_in_text(
+        "reflexion mirror",
+        "I am a senior citizen and I live in the Fun-Plex \u201cReflexion Mirror\u201d in Sopchoppy, Florida",
+    )
+    assert 1 == count_occurrences_in_text(
+        "legitimate",
+        "who is approved by OILS is completely legitimate: their employees are of legal working age",
     )
     assert 0 == count_occurrences_in_text(
-        "legitimate their", "who is approved by OILS is completely legitimate: their employees are of legal working age"
+        "legitimate their",
+        "who is approved by OILS is completely legitimate: their employees are of legal working age",
     )
     assert 1 == count_occurrences_in_text(
-        "get back to me", "I hope you will consider this proposal, and get back to me as soon as possible"
+        "get back to me",
+        "I hope you will consider this proposal, and get back to me as soon as possible",
     )
     assert 1 == count_occurrences_in_text(
-        "skin-care", "enable Delavigne and its subsidiaries to create a skin-care monopoly"
+        "skin-care",
+        "enable Delavigne and its subsidiaries to create a skin-care monopoly",
     )
     assert 1 == count_occurrences_in_text(
-        "skin-care monopoly", "enable Delavigne and its subsidiaries to create a skin-care monopoly"
+        "skin-care monopoly",
+        "enable Delavigne and its subsidiaries to create a skin-care monopoly",
     )
     assert 0 == count_occurrences_in_text(
-        "skin-care monopoly in the US", "enable Delavigne and its subsidiaries to create a skin-care monopoly"
-    )
-    assert 1 == count_occurrences_in_text("get back to me", "When you know:get back to me")
-    assert 1 == count_occurrences_in_text(
-        "don't be left", """emergency alarm warning.
-Don't be left unprotected. Order your SSSS3000 today!"""
+        "skin-care monopoly in the US",
+        "enable Delavigne and its subsidiaries to create a skin-care monopoly",
     )
     assert 1 == count_occurrences_in_text(
-        "don", """emergency alarm warning.
-Don't be left unprotected. Order your don SSSS3000 today!"""
+        "get back to me", "When you know:get back to me"
     )
-    assert 1 == count_occurrences_in_text("take that as a 'yes'", "Do I have to take that as a 'yes'?")
-    assert 1 == count_occurrences_in_text("don't take that as a 'yes'", "I don't take that as a 'yes'?")
-    assert 1 == count_occurrences_in_text("take that as a 'yes'", "I don't take that as a 'yes'?")
+    assert 1 == count_occurrences_in_text(
+        "don't be left",
+        """emergency alarm warning.
+Don't be left unprotected. Order your SSSS3000 today!""",
+    )
+    assert 1 == count_occurrences_in_text(
+        "don",
+        """emergency alarm warning.
+Don't be left unprotected. Order your don SSSS3000 today!""",
+    )
+    assert 1 == count_occurrences_in_text(
+        "take that as a 'yes'", "Do I have to take that as a 'yes'?"
+    )
+    assert 1 == count_occurrences_in_text(
+        "don't take that as a 'yes'", "I don't take that as a 'yes'?"
+    )
+    assert 1 == count_occurrences_in_text(
+        "take that as a 'yes'", "I don't take that as a 'yes'?"
+    )
     assert 1 == count_occurrences_in_text("don't", "I don't take that as a 'yes'?")
-    assert 1 == count_occurrences_in_text("attaching my c.v. to this e-mail", "I am attaching my c.v. to this e-mail.")
-    assert 1 == count_occurrences_in_text("Linguist", "'''Linguist Specialist Found Dead on Laboratory Floor'''")
     assert 1 == count_occurrences_in_text(
-        "Linguist Specialist", "'''Linguist Specialist Found Dead on Laboratory Floor'''"
+        "attaching my c.v. to this e-mail", "I am attaching my c.v. to this e-mail."
+    )
+    assert 1 == count_occurrences_in_text(
+        "Linguist", "'''Linguist Specialist Found Dead on Laboratory Floor'''"
+    )
+    assert 1 == count_occurrences_in_text(
+        "Linguist Specialist",
+        "'''Linguist Specialist Found Dead on Laboratory Floor'''",
     )
     assert 1 == count_occurrences_in_text(
         "Laboratory Floor", "'''Linguist Specialist Found Dead on Laboratory Floor'''"
     )
-    assert 1 == count_occurrences_in_text("Floor", "'''Linguist Specialist Found Dead on Laboratory Floor'''")
-    assert 1 == count_occurrences_in_text("Floor", "''Linguist Specialist Found Dead on Laboratory Floor''")
-    assert 1 == count_occurrences_in_text("Floor", "__Linguist Specialist Found Dead on Laboratory Floor__")
-    assert 1 == count_occurrences_in_text("Floor", "'''''Linguist Specialist Found Dead on Laboratory Floor'''''")
-    assert 1 == count_occurrences_in_text("Linguist", "'''Linguist Specialist Found Dead on Laboratory Floor'''")
-    assert 1 == count_occurrences_in_text("Linguist", "''Linguist Specialist Found Dead on Laboratory Floor''")
-    assert 1 == count_occurrences_in_text("Linguist", "__Linguist Specialist Found Dead on Laboratory Floor__")
-    assert 1 == count_occurrences_in_text("Linguist", "'''''Linguist Specialist Found Dead on Laboratory Floor'''''")
+    assert 1 == count_occurrences_in_text(
+        "Floor", "'''Linguist Specialist Found Dead on Laboratory Floor'''"
+    )
+    assert 1 == count_occurrences_in_text(
+        "Floor", "''Linguist Specialist Found Dead on Laboratory Floor''"
+    )
+    assert 1 == count_occurrences_in_text(
+        "Floor", "__Linguist Specialist Found Dead on Laboratory Floor__"
+    )
+    assert 1 == count_occurrences_in_text(
+        "Floor", "'''''Linguist Specialist Found Dead on Laboratory Floor'''''"
+    )
+    assert 1 == count_occurrences_in_text(
+        "Linguist", "'''Linguist Specialist Found Dead on Laboratory Floor'''"
+    )
+    assert 1 == count_occurrences_in_text(
+        "Linguist", "''Linguist Specialist Found Dead on Laboratory Floor''"
+    )
+    assert 1 == count_occurrences_in_text(
+        "Linguist", "__Linguist Specialist Found Dead on Laboratory Floor__"
+    )
+    assert 1 == count_occurrences_in_text(
+        "Linguist", "'''''Linguist Specialist Found Dead on Laboratory Floor'''''"
+    )
 
 
 SAMPLE_TEXT_FOR_BENCH = """
